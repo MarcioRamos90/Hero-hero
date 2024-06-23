@@ -33,10 +33,10 @@ main :: proc() {
     currentImage := playerWalkImage
     currentImageCopy := playerWalkImageCopy
 
-    player_flip: bool
-    player_run_frame_timer: f32
-    player_run_frame_length := f32(0.1)
-    player_run_current_frame: int
+    playerFlip: bool
+    playerWalkFrameTimer: f32
+    playerRunFrameLength := f32(0.1)
+    playerWalkCurrentFrame: int
 
 	playerPosition: Vector2 = {f32(0), 320}
     playerGoingToRight := true
@@ -49,7 +49,7 @@ main :: proc() {
 	framesCounter := 0
 	framesSpeed := 6
 
-    player_run_num_frames := 8
+    playerWalkNumFrames := 8
 
 	for !rl.WindowShouldClose() {
 		// -------------------------------------------------------------------------
@@ -57,10 +57,10 @@ main :: proc() {
 		// -------------------------------------------------------------------------
 		if rl.IsKeyPressed(rl.KeyboardKey.RIGHT) || rl.IsKeyDown(rl.KeyboardKey.RIGHT) {
             playerVelocity.x = 400
-            player_flip = false
+            playerFlip = false
         } else if rl.IsKeyPressed(rl.KeyboardKey.LEFT) || rl.IsKeyDown(rl.KeyboardKey.LEFT) {
             playerVelocity.x = -400
-            player_flip = true
+            playerFlip = true
         } else {
             playerVelocity.x = 0
         }
@@ -89,32 +89,32 @@ main :: proc() {
             currentImageCopy = playerJumpImageCopy
         }
 
-        player_run_frame_timer += rl.GetFrameTime()
+        playerWalkFrameTimer += rl.GetFrameTime()
 
-        if player_run_frame_timer > player_run_frame_length {
-            player_run_current_frame += 1
-            player_run_frame_timer = 0
+        if playerWalkFrameTimer > playerRunFrameLength {
+            playerWalkCurrentFrame += 1
+            playerWalkFrameTimer = 0
 
-            if player_run_current_frame == player_run_num_frames {
-                player_run_current_frame = 0
+            if playerWalkCurrentFrame == playerWalkNumFrames {
+                playerWalkCurrentFrame = 0
             }
         }
 
-        draw_player_source := rl.Rectangle {
-            x = f32(player_run_current_frame) * f32(playerWalkTexture.width) / f32(player_run_num_frames),
+        drawPlayerSource := rl.Rectangle {
+            x = f32(playerWalkCurrentFrame) * f32(playerWalkTexture.width) / f32(playerWalkNumFrames),
             y = 0,
-            width = f32(playerWalkTexture.width) / f32(player_run_num_frames),
+            width = f32(playerWalkTexture.width) / f32(playerWalkNumFrames),
             height = f32(playerWalkTexture.height),
         }
 
-        if player_flip {
-            draw_player_source.width = -draw_player_source.width
+        if playerFlip {
+            drawPlayerSource.width = -drawPlayerSource.width
         }
 
-        draw_player_dest := rl.Rectangle {
+        drawPlayerDest := rl.Rectangle {
             x = playerPosition.x,
             y = playerPosition.y,
-            width = f32(playerWalkTexture.width) / f32(player_run_num_frames),
+            width = f32(playerWalkTexture.width) / f32(playerWalkNumFrames),
             height = f32(playerWalkTexture.height)
         }
 
@@ -124,8 +124,7 @@ main :: proc() {
 		rl.BeginDrawing()
 		{
             rl.ClearBackground(rl.DARKGRAY)
-            // rl.DrawTextureRec(currentTexture, draw_player_source, playerPosition, rl.WHITE)
-            rl.DrawTexturePro(currentTexture, draw_player_source, draw_player_dest, 0, 0, rl.WHITE)
+            rl.DrawTexturePro(currentTexture, drawPlayerSource, drawPlayerDest, 0, 0, rl.WHITE)
 
 		}
 		rl.EndDrawing()
