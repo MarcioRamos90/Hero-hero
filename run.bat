@@ -1,0 +1,1 @@
+odin run .\code\main.odin -file -out:.\bin\hero.exe -debug

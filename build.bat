@@ -1,0 +1,1 @@
+odin build .\code\main.odin -file -out:.\bin\hero.exe
