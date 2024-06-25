@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:os"
 import rl "vendor:raylib"
 
 Vector2 :: rl.Vector2
@@ -8,6 +9,14 @@ Vector2 :: rl.Vector2
 Vec2_i32 :: struct {
 	x: i32,
 	y: i32,
+}
+
+AnimationStruct :: struct {
+	texture: rl.Texture2D,
+    numFrames: u32,
+    frameTimer: f32,
+    currentFrame: u32,
+    frameLength: f32,
 }
 
 main :: proc() {
@@ -22,21 +31,29 @@ main :: proc() {
     
 	playerVelocity : rl.Vector2
 
-    playerWalkImage := rl.LoadImage("H:\\code\\resources\\swordsman\\Walk.png")
-	playerWalkTexture: rl.Texture2D = rl.LoadTextureFromImage(playerWalkImage)
-    playerWalkImageCopy := rl.ImageCopy(playerWalkImage)
-    playerJumpImage := rl.LoadImage("H:\\code\\resources\\swordsman\\Jump.png")
-	playerJumpTexture: rl.Texture2D = rl.LoadTextureFromImage(playerJumpImage)
-    playerJumpImageCopy := rl.ImageCopy(playerJumpImage)
+    playerWalk := AnimationStruct {
+        texture = rl.LoadTexture("resources/swordsman/Walk.png"),
+        numFrames = 8,
+        frameLength = f32(0.1),
+    }
 
-    currentTexture : rl.Texture2D = playerWalkTexture
-    currentImage := playerWalkImage
-    currentImageCopy := playerWalkImageCopy
+    playerIdle := AnimationStruct {
+        texture = rl.LoadTexture("resources/swordsman/Idle.png"),
+        numFrames = 8,
+        frameLength = f32(0.2),
+    }
+
+    playerIdle2 := AnimationStruct {
+        texture = rl.LoadTexture("resources/swordsman/Idle2.png"),
+        numFrames = 3,
+        frameLength = f32(0.5),
+    }
+
+	playerJumpTexture: rl.Texture2D = rl.LoadTexture("resources/swordsman/Jump.png")
+
+    currentAnimation := playerIdle2
 
     playerFlip: bool
-    playerWalkFrameTimer: f32
-    playerRunFrameLength := f32(0.1)
-    playerWalkCurrentFrame: int
 
 	playerPosition: Vector2 = {f32(0), 320}
     playerGoingToRight := true
@@ -49,7 +66,6 @@ main :: proc() {
 	framesCounter := 0
 	framesSpeed := 6
 
-    playerWalkNumFrames := 8
 
 	for !rl.WindowShouldClose() {
 		// -------------------------------------------------------------------------
@@ -74,37 +90,27 @@ main :: proc() {
 
         playerPosition += playerVelocity * rl.GetFrameTime()
 
-        if playerPosition.y > f32(rl.GetScreenHeight() - playerWalkTexture.height) {
-            playerPosition.y = f32(rl.GetScreenHeight() - playerWalkTexture.height)
+        if playerPosition.y > f32(rl.GetScreenHeight() - playerWalk.texture.height) {
+            playerPosition.y = f32(rl.GetScreenHeight() - playerWalk.texture.height)
             playerGrounded = true
         }
 
-        if playerGrounded {
-            currentTexture = playerWalkTexture
-            currentImage := playerWalkImage
-            currentImageCopy = playerWalkImageCopy
-        } else {
-            currentTexture = playerJumpTexture
-            currentImage := playerJumpImage
-            currentImageCopy = playerJumpImageCopy
-        }
+        playerWalk.frameTimer += rl.GetFrameTime()
 
-        playerWalkFrameTimer += rl.GetFrameTime()
+        if playerWalk.frameTimer > playerWalk.frameLength {
+            playerWalk.currentFrame += 1
+            playerWalk.frameTimer = 0
 
-        if playerWalkFrameTimer > playerRunFrameLength {
-            playerWalkCurrentFrame += 1
-            playerWalkFrameTimer = 0
-
-            if playerWalkCurrentFrame == playerWalkNumFrames {
-                playerWalkCurrentFrame = 0
+            if playerWalk.currentFrame == playerWalk.numFrames {
+                playerWalk.currentFrame = 0
             }
         }
 
         drawPlayerSource := rl.Rectangle {
-            x = f32(playerWalkCurrentFrame) * f32(playerWalkTexture.width) / f32(playerWalkNumFrames),
+            x = f32(playerWalk.currentFrame) * f32(playerWalk.texture.width) / f32(playerWalk.numFrames),
             y = 0,
-            width = f32(playerWalkTexture.width) / f32(playerWalkNumFrames),
-            height = f32(playerWalkTexture.height),
+            width = f32(playerWalk.texture.width) / f32(playerWalk.numFrames),
+            height = f32(playerWalk.texture.height),
         }
 
         if playerFlip {
@@ -114,8 +120,8 @@ main :: proc() {
         drawPlayerDest := rl.Rectangle {
             x = playerPosition.x,
             y = playerPosition.y,
-            width = f32(playerWalkTexture.width) / f32(playerWalkNumFrames),
-            height = f32(playerWalkTexture.height)
+            width = f32(playerWalk.texture.width) / f32(playerWalk.numFrames),
+            height = f32(playerWalk.texture.height)
         }
 
 		// -------------------------------------------------------------------------
@@ -124,7 +130,7 @@ main :: proc() {
 		rl.BeginDrawing()
 		{
             rl.ClearBackground(rl.DARKGRAY)
-            rl.DrawTexturePro(currentTexture, drawPlayerSource, drawPlayerDest, 0, 0, rl.WHITE)
+            rl.DrawTexturePro(currentAnimation.texture, drawPlayerSource, drawPlayerDest, 0, 0, rl.WHITE)
 
 		}
 		rl.EndDrawing()
