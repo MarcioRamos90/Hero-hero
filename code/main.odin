@@ -4,71 +4,9 @@ import "core:fmt"
 import "core:os"
 import rl "vendor:raylib"
 
-Animation_Name :: enum {
-	Idle,
-	Idle2,
-	Walk,
-	Jump,
-}
-
-AnimationStruct :: struct {
-	texture:      rl.Texture2D,
-	numFrames:    u32,
-	frameTimer:   f32,
-	currentFrame: u32,
-	frameLength:  f32,
-	name:         Animation_Name,
-}
-
-updateAnimation :: proc(animation: ^AnimationStruct) {
-	animation^.frameTimer += rl.GetFrameTime()
-
-	if animation^.frameTimer > animation^.frameLength {
-		animation^.currentFrame += 1
-		animation^.frameTimer = 0
-
-		if animation^.currentFrame == animation^.numFrames {
-			animation^.currentFrame = 0
-		}
-	}
-}
-
-drawAnimation :: proc(animation: AnimationStruct, position: rl.Vector2, flip: bool) {
-
-	width := f32(animation.texture.width)
-	height := f32(animation.texture.height)
-
-	drawPlayerSource := rl.Rectangle {
-		x      = f32(animation.currentFrame) * width / f32(animation.numFrames),
-		y      = 0,
-		width  = width / f32(animation.numFrames),
-		height = height,
-	}
-
-	if flip {
-		drawPlayerSource.width = -drawPlayerSource.width
-	}
-
-	dest := rl.Rectangle {
-		x      = position.x,
-		y      = position.y,
-		width  = width / f32(animation.numFrames),
-		height = height,
-	}
-
-	rl.DrawTexturePro(
-		animation.texture,
-		drawPlayerSource,
-		dest,
-		{dest.width / 2, dest.height},
-		0,
-		rl.WHITE,
-	)
-}
-
 Platform :: struct {
-	position: rl.Vector2,
-	texture: rl.Texture2D,
+	dimensions: rl.Rectangle,
+	tilesetmap: rl.Rectangle,
 }
 
 PixelwindowHeight :: 180
@@ -85,61 +23,32 @@ main :: proc() {
 
 	// PLATFORM
 
-	platforms : []rl.Rectangle = {
-		{-20, 20, 300, 16},
-		{330, 24, 300, 16},
+	platforms : []Platform = {
+		{{-20+(32*0), 20, 32, 32}, {32*1, 32*0, 32, 32}},
+		{{-20+(32*1), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*2), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*3), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*4), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*5), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*6), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*7), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*8), 20, 32, 32}, {32*2, 32*0, 32, 32}},
+		{{-20+(32*9), 20, 32, 32}, {32*2, 32*0, 32, 32}},
 	}
 
-	platform_texture := rl.LoadTexture("resources/platforms/platform1.png")
+	platform_texture := rl.LoadTexture("resources/ground/free_nature_tileset_by_TRA/tileset.png")
 
 	// PLAYER
 
-	playerVelocity: rl.Vector2
-
-	playerWalk := AnimationStruct {
-		texture     = rl.LoadTexture("resources/swordsman/Walk.png"),
-		numFrames   = 8,
-		frameLength = f32(0.1),
-		name        = .Walk,
-	}
-
-	playerIdle := AnimationStruct {
-		texture     = rl.LoadTexture("resources/swordsman/Idle.png"),
-		numFrames   = 8,
-		frameLength = f32(0.15),
-		name        = .Idle,
-	}
-
-	playerIdle2 := AnimationStruct {
-		texture     = rl.LoadTexture("resources/swordsman/Idle_2.png"),
-		numFrames   = 3,
-		frameLength = f32(1.5),
-		name        = .Idle2,
-	}
-
-	playerJump := AnimationStruct {
-		texture     = rl.LoadTexture("resources/swordsman/Jump.png"),
-		numFrames   = 8,
-		frameLength = f32(0.1),
-		name        = .Jump,
-	}
-
+	playerWalk, playerIdle, playerIdle2, playerJump, playerVelocity, playerPosition, playerFlip, playerGrounded := initilizePlayer()
 
 	currentAnimation: AnimationStruct = playerIdle
-
-	playerFlip: bool
-
-	playerPosition: rl.Vector2
-	playerGoingToRight := true
-	playerGrounded := true
-
 	rl.SetTargetFPS(500)
 
 	currentFrame := 0
 
 	framesCounter := 0
 	framesSpeed := 6
-
 
 	for !rl.WindowShouldClose() {
 		// -------------------------------------------------------------------------
@@ -186,13 +95,12 @@ main :: proc() {
         playerGrounded = false
 
 		for platform in platforms {
-			if rl.CheckCollisionRecs(playerFeetCollider, platform) && playerVelocity.y > 0 {
+			if rl.CheckCollisionRecs(playerFeetCollider, platform.dimensions) && playerVelocity.y > 0 {
 				playerVelocity.y = 0
-				playerPosition.y = platform.y
+				playerPosition.y = platform.dimensions.y
 				playerGrounded = true
 			}
 		}
-
 
 		// -------------------------------------------------------------------------
 		//  DRAWING
@@ -207,13 +115,13 @@ main :: proc() {
 			camera := rl.Camera2D {
 				offset = {f32(rl.GetScreenWidth() / 2), screenHeight / 2},
 				target = playerPosition,
-				zoom   = (screenHeight / PixelwindowHeight) * 0.3,
+				zoom   = (screenHeight / PixelwindowHeight) * 0.2,
 			}
 			rl.BeginMode2D(camera)
 			drawAnimation(currentAnimation, playerPosition, playerFlip)
 			for platform in platforms {
             	// rl.DrawRectangleRec(platform, rl.RED)
-				rl.DrawTextureV(platform_texture, {platform.x, platform.y}, rl.WHITE)
+				rl.DrawTextureRec(platform_texture, {platform.tilesetmap.x, platform.tilesetmap.y, platform.dimensions.width, platform.dimensions.height}, {platform.dimensions.x, platform.dimensions.y}, rl.WHITE)
 			}
 			rl.DrawRectangleRec(playerFeetCollider, {255, 255, 0, 100})
 			rl.EndMode2D()
