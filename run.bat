@@ -1,1 +1,1 @@
-odin run .\code\main.odin -file -out:.\bin\hero.exe -debug
+odin run .\code\. -out:.\bin\hero.exe -debug

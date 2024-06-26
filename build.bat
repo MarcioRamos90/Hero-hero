@@ -1,1 +1,1 @@
-odin build .\code\main.odin -file -out:.\bin\hero.exe
+odin build .\code\. -out:.\bin\hero.exe
