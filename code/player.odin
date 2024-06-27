@@ -8,6 +8,7 @@ Animation_Name :: enum {
 	Idle2,
 	Walk,
 	Jump,
+	Attack_1,
 }
 
 AnimationStruct :: struct {
@@ -20,7 +21,7 @@ AnimationStruct :: struct {
 }
 
 
-initilizePlayer :: proc () -> (AnimationStruct, AnimationStruct, AnimationStruct, AnimationStruct, rl.Vector2, rl.Vector2, bool, bool) {
+initilizePlayer :: proc () -> (AnimationStruct, AnimationStruct, AnimationStruct, AnimationStruct, AnimationStruct, rl.Vector2, rl.Vector2, bool, bool) {
 
 	playerWalk := AnimationStruct {
 		texture     = rl.LoadTexture("resources/player/swordsman/Walk.png"),
@@ -50,6 +51,13 @@ initilizePlayer :: proc () -> (AnimationStruct, AnimationStruct, AnimationStruct
 		name        = .Jump,
 	}
 
+	playerAttack := AnimationStruct {
+		texture		= rl.LoadTexture("resources/player/swordsman/Attack_1.png"),
+		numFrames   = 6,
+		frameLength = f32(0.15),
+		name        = .Attack_1,
+	}
+
     playerVelocity: rl.Vector2
 
 	playerFlip: bool
@@ -58,5 +66,5 @@ initilizePlayer :: proc () -> (AnimationStruct, AnimationStruct, AnimationStruct
 	playerGoingToRight := true
 	playerGrounded := true
 
-    return  playerWalk, playerIdle, playerIdle2, playerJump, playerVelocity, playerPosition, playerFlip, playerGrounded
+    return playerWalk, playerIdle, playerIdle2, playerJump, playerAttack, playerVelocity, playerPosition, playerFlip, playerGrounded
 }

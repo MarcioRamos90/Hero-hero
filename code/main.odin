@@ -2,8 +2,9 @@ package main
 
 import "core:fmt"
 import "core:os"
-import rl "vendor:raylib"
+import "core:time"
 
+import rl "vendor:raylib"
 
 PixelwindowHeight :: 180
 
@@ -38,7 +39,7 @@ main :: proc() {
 
 	// PLAYER
 
-	playerWalk, playerIdle, playerIdle2, playerJump, playerVelocity, playerPosition, playerFlip, playerGrounded :=
+	playerWalk, playerIdle, playerIdle2, playerJump, playerAttack, playerVelocity, playerPosition, playerFlip, playerGrounded :=
 		initilizePlayer()
 
 	currentAnimation: AnimationStruct = playerIdle
@@ -53,13 +54,18 @@ main :: proc() {
 		// -------------------------------------------------------------------------
 		//  UPDATING
 		// -------------------------------------------------------------------------
-		if rl.IsKeyPressed(rl.KeyboardKey.RIGHT) || rl.IsKeyDown(rl.KeyboardKey.RIGHT) {
+		if rl.IsKeyDown(rl.KeyboardKey.SPACE) {	
+			playerVelocity.x = 0		
+			if currentAnimation.name != .Attack_1 {
+				currentAnimation = playerAttack
+			}
+		} else if rl.IsKeyDown(rl.KeyboardKey.RIGHT) {
 			playerVelocity.x = 200
 			playerFlip = false
 			if currentAnimation.name != .Walk {
 				currentAnimation = playerWalk
 			}
-		} else if rl.IsKeyPressed(rl.KeyboardKey.LEFT) || rl.IsKeyDown(rl.KeyboardKey.LEFT) {
+		} else if rl.IsKeyDown(rl.KeyboardKey.LEFT) {
 			playerVelocity.x = -200
 			playerFlip = true
 			if currentAnimation.name != .Walk {
@@ -75,7 +81,6 @@ main :: proc() {
 				currentAnimation = playerIdle
 			}
 		}
-
 		playerVelocity.y += 1500 * rl.GetFrameTime()
 
 		if playerGrounded && rl.IsKeyPressed(.UP) {
@@ -114,6 +119,10 @@ main :: proc() {
 				}
 			rl.BeginMode2D(camera)
 			drawAnimation(currentAnimation, playerPosition, playerFlip)
+			if currentAnimation.name == .Attack_1 {
+				time.sleep(1)
+				fmt.printf("finishe %s",currentAnimation.name )
+			}
 			for p in platform {
 				rl.DrawTextureRec(
 					platform_texture,
@@ -127,7 +136,6 @@ main :: proc() {
 					rl.WHITE,
 				)
 			}
-			rl.DrawRectangleRec(playerFeetCollider, {255, 255, 0, 100})
 			rl.EndMode2D()
 		}
 		rl.EndDrawing()
