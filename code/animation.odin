@@ -47,3 +47,18 @@ drawAnimation :: proc(animation: AnimationStruct, position: rl.Vector2, flip: bo
 		rl.WHITE,
 	)
 }
+
+
+import "core:fmt"
+
+drawMultAssetAnimation :: proc(animation: MulTexturesAnimationStruct, position: rl.Vector2, flip: bool) {
+
+	width := f32(animation.texture[0].width)
+	height := f32(animation.texture[0].height)
+
+	currentFrame := u32(rl.GetTime() / animation.frameLength) % animation.numFrames
+
+	currentTexture := animation.texture[currentFrame]
+
+	rl.DrawTextureV(currentTexture, position, rl.WHITE)
+}

@@ -29,7 +29,7 @@ main :: proc() {
 	}
 	platform := tailsetMapGenerator(
 		startX = -2000,
-		startY = 20,
+		startY = 200,
 		width = 32,
 		height = 32,
 		config = config1,
@@ -43,12 +43,12 @@ main :: proc() {
 		initilizePlayer()
 
 	currentAnimation: AnimationStruct = playerIdle
-	rl.SetTargetFPS(500)
+	rl.SetTargetFPS(60)
 
-	currentFrame := 0
-
-	framesCounter := 0
-	framesSpeed := 6
+	drangon := dragonInit()
+	dragonPosition: rl.Vector2
+	dragonGrounded := true
+	dragonFlip := false
 
 	for !rl.WindowShouldClose() {
 		// -------------------------------------------------------------------------
@@ -100,7 +100,9 @@ main :: proc() {
 				playerPosition.y = p.dimensions.y
 				playerGrounded = true
 			}
+			dragonPosition.y = (p.dimensions.y * -1) - (f32(drangon.texture[0].height) / 2.7)
 		}
+
 
 		// -------------------------------------------------------------------------
 		//  DRAWING
@@ -119,9 +121,9 @@ main :: proc() {
 				}
 			rl.BeginMode2D(camera)
 			drawAnimation(currentAnimation, playerPosition, playerFlip)
+			drawMultAssetAnimation(drangon, dragonPosition, dragonFlip)
 			if currentAnimation.name == .Attack_1 {
 				time.sleep(1)
-				fmt.printf("finishe %s",currentAnimation.name )
 			}
 			for p in platform {
 				rl.DrawTextureRec(
