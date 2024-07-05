@@ -45,8 +45,8 @@ main :: proc() {
 	currentAnimation: AnimationStruct = playerIdle
 	rl.SetTargetFPS(60)
 
-	drangon := dragonInit()
-	dragonPosition: rl.Vector2
+	drangonWalk, dragonVelocity, dragonIsGrounded := dragonInit()
+	dragonPosition: = rl.Vector2 { -(f32(drangonWalk.texture[0].width) / 2) , -f32(drangonWalk.texture[0].height) }
 	dragonGrounded := true
 	dragonFlip := false
 
@@ -82,16 +82,23 @@ main :: proc() {
 			}
 		}
 		playerVelocity.y += 1500 * rl.GetFrameTime()
+		dragonVelocity.y += 1500 * rl.GetFrameTime()
 
 		if playerGrounded && rl.IsKeyPressed(.UP) {
 			playerVelocity.y = -500
 		}
 
+		if dragonIsGrounded {
+
+		}
+
 		playerPosition += playerVelocity * rl.GetFrameTime()
-
 		playerFeetCollider := rl.Rectangle{playerPosition.x - 10, playerPosition.y - 4, 20, 4}
-
 		playerGrounded = false
+
+		dragonPosition += dragonVelocity * rl.GetFrameTime()
+		dragonFeetCollider := rl.Rectangle{dragonPosition.x + (f32(drangonWalk.texture[0].width) / 2) - 40, dragonPosition.y + f32(drangonWalk.texture[0].height) - 70, 450, 40}
+		dragonIsGrounded = false
 
 		for p in platform {
 			if rl.CheckCollisionRecs(playerFeetCollider, p.dimensions) &&
@@ -100,7 +107,13 @@ main :: proc() {
 				playerPosition.y = p.dimensions.y
 				playerGrounded = true
 			}
-			dragonPosition.y = (p.dimensions.y * -1) - (f32(drangon.texture[0].height) / 2.7)
+
+			if rl.CheckCollisionRecs(dragonFeetCollider, p.dimensions) &&
+				dragonVelocity.y > 0 {
+				dragonVelocity.y = 0
+				dragonPosition.y = p.dimensions.y - f32(drangonWalk.texture[0].height) + 30
+				dragonGrounded = true
+			}	
 		}
 
 
@@ -121,7 +134,10 @@ main :: proc() {
 				}
 			rl.BeginMode2D(camera)
 			drawAnimation(currentAnimation, playerPosition, playerFlip)
-			drawMultAssetAnimation(drangon, dragonPosition, dragonFlip)
+			drawMultAssetAnimation(drangonWalk, dragonPosition, dragonFlip)
+
+
+			fmt.printfln("%f", dragonPosition)
 			if currentAnimation.name == .Attack_1 {
 				time.sleep(1)
 			}

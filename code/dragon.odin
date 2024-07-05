@@ -13,7 +13,7 @@ MulTexturesAnimationStruct :: struct {
 
 
 
-dragonInit :: proc () -> MulTexturesAnimationStruct {
+dragonInit :: proc () -> (MulTexturesAnimationStruct, rl.Vector2, bool) {
     textures : [15]rl.Texture2D
     textures[0]     = rl.LoadTexture("resources\\dragon\\PNG\\Animation\\Dragon1\\Walk_000.png")
     textures[1]     = rl.LoadTexture("resources\\dragon\\PNG\\Animation\\Dragon1\\Walk_001.png")
@@ -30,10 +30,14 @@ dragonInit :: proc () -> MulTexturesAnimationStruct {
     textures[12]     = rl.LoadTexture("resources\\dragon\\PNG\\Animation\\Dragon1\\Walk_013.png")
     textures[13]     = rl.LoadTexture("resources\\dragon\\PNG\\Animation\\Dragon1\\Walk_014.png")
     textures[14]     = rl.LoadTexture("resources\\dragon\\PNG\\Animation\\Dragon1\\Walk_015.png")
+
+    dragonVelocity: rl.Vector2
+    dragonIsGrounded: bool
+
     return MulTexturesAnimationStruct {
         texture = textures,
         numFrames   = len(textures),
 		frameLength = f64(0.1),
 		name        = .Walk,
-    }
+    }, dragonVelocity, dragonIsGrounded
 }
