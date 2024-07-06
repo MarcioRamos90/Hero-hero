@@ -6,6 +6,8 @@ import "core:time"
 
 import rl "vendor:raylib"
 
+import dragon "dragon"
+
 PixelwindowHeight :: 180
 
 
@@ -81,6 +83,8 @@ main :: proc() {
 				currentAnimation = playerIdle
 			}
 		}
+
+		dragon.dragonController(&dragonPosition, &dragonGrounded, &dragonFlip)
 		playerVelocity.y += 1500 * rl.GetFrameTime()
 		dragonVelocity.y += 1500 * rl.GetFrameTime()
 
@@ -136,8 +140,6 @@ main :: proc() {
 			drawAnimation(currentAnimation, playerPosition, playerFlip)
 			drawMultAssetAnimation(drangonWalk, dragonPosition, dragonFlip)
 
-
-			fmt.printfln("%f", dragonPosition)
 			if currentAnimation.name == .Attack_1 {
 				time.sleep(1)
 			}

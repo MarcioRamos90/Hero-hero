@@ -60,5 +60,5 @@ drawMultAssetAnimation :: proc(animation: MulTexturesAnimationStruct, position: 
 
 	currentTexture := animation.texture[currentFrame]
 
-	rl.DrawTextureV(currentTexture, position, rl.RED)
+	rl.DrawTextureV(currentTexture, position, rl.WHITE)
 }
