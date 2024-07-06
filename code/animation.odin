@@ -48,17 +48,24 @@ drawAnimation :: proc(animation: AnimationStruct, position: rl.Vector2, flip: bo
 	)
 }
 
-
-import "core:fmt"
-
 drawMultAssetAnimation :: proc(animation: MulTexturesAnimationStruct, position: rl.Vector2, flip: bool) {
 
-	width := f32(animation.texture[0].width)
-	height := f32(animation.texture[0].height)
-
 	currentFrame := u32(rl.GetTime() / animation.frameLength) % animation.numFrames
-
 	currentTexture := animation.texture[currentFrame]
 
-	rl.DrawTextureV(currentTexture, position, rl.WHITE)
+	width := f32(currentTexture.width)
+	height := f32(currentTexture.height)
+
+	drawDragonSource := rl.Rectangle {
+		x      = 0,
+		y      = 0,
+		width  = width,
+		height = height,
+	}
+
+	if flip {
+		drawDragonSource.width = -drawDragonSource.width
+	}
+
+	rl.DrawTextureRec(currentTexture, drawDragonSource, position, rl.WHITE)
 }
