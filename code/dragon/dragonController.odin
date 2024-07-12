@@ -16,11 +16,11 @@ dragonController :: proc (dragonPosition: ^rl.Vector2, dragonGrounded: ^bool, dr
     } else if currentDirection == "left" {
         dragonPosition^.x -= 1
         dragonFlip^ = true
-    } else if currentDirection == "up" && dragonGrounded^ {
+    } /*else if currentDirection == "up" && dragonGrounded^ {
         dragonPosition^.y -= 100
         dragonGrounded^ = false
 
     }  else if currentDirection == "down" && !dragonGrounded^ {
         dragonPosition^.y += 1
-    }
+    }*/
 }
