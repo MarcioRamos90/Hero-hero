@@ -120,6 +120,7 @@ main :: proc() {
 			height = 4,
 		}
 		enemyGrounded := false
+		enemy.controller(&enemyPosition, &enemyGrounded, &enemyFlip, &playerPosition)
 
 		for p in platform {
 			if rl.CheckCollisionRecs(enemyFeetCollider, p.dimensions) && enemyVelocity.y > 0 {
